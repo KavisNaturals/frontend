@@ -50,7 +50,7 @@ const Footer = () => {
           </div>
 
           {/* Right: Newsletter & small payment icons */}
-          <div className="space-y-4 flex flex-col items-start w-3/4 lg:col-span-1">
+          <div className="space-y-4 flex flex-col items-start w-3/4 lg:w-full lg:col-span-1">
             <h3 className="force-sans" style={{ fontWeight: 600, fontSize: '16px', lineHeight: '150%', letterSpacing: '0%' }}>Join our Community</h3>
             <p className="text-sm" style={{ fontFamily: 'var(--font-sans)', fontWeight: 400, fontSize: '15px', lineHeight: '150%' }}>
               Stay informed about our latest offers, bulk order discounts, and exclusive deals. Sign up now to receive updates directly in your inbox.
