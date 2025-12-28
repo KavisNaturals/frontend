@@ -115,7 +115,7 @@ const BestSellers = () => {
                     src={product.imagePath}
                     alt={product.name}
                     fill
-                    className="object-contain p-6"
+                    className="object-contain p-3"
                   />
                 </div>
               </div>
@@ -145,10 +145,9 @@ const BestSellers = () => {
 
                 {/* Product Name */}
                 <h3
-                  className="text-gray-800 mb-3"
+                  className="text-gray-800 mb-3 force-sans"
                   style={{
-                    fontFamily: 'var(--font-sans)',
-                    fontWeight: 500,
+                    fontWeight: 700,
                     fontSize: '20px',
                     lineHeight: '100%',
                     letterSpacing: '0%'
