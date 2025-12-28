@@ -55,7 +55,6 @@ const CategoryBubbles = () => {
                   <h3
                     className="text-gray-800 group-hover:text-primary transition-colors"
                     style={{
-                      fontFamily: 'var(--font-sans)',
                       fontWeight: 500,
                       fontSize: '24px',
                       lineHeight: '100%',

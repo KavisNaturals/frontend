@@ -12,39 +12,39 @@ const Footer = () => {
           {/* Left: Company info */}
           <div className="space-y-6 lg:col-span-1">
             <h4
-              style={{ fontFamily: 'var(--font-sans)', fontWeight: 700, fontSize: '18px', lineHeight: '150%', letterSpacing: '0%' }}
+              style={{ fontWeight: 700, fontSize: '18px', lineHeight: '150%', letterSpacing: '0%' }}
             >
               Kavi's Naturals
             </h4>
-            <p className="text-sm mt-2" style={{ fontFamily: 'var(--font-sans)', fontWeight: 400, fontSize: '15.75px', lineHeight: '150%', letterSpacing: '0%' }}>
+            <p className="text-sm mt-2" style={{ fontWeight: 400, fontSize: '15.75px', lineHeight: '150%', letterSpacing: '0%' }}>
               Sri Mahaliammam Agro Products
               <br />S.F.No: 123/6A, Kummakkalipalayam,
               <br />Perundurai-638052 Erode,
               <br />Tamilnadu, India
             </p>
-            <p className="text-sm mt-3" style={{ fontFamily: 'var(--font-sans)', fontWeight: 400, fontSize: '15.75px', lineHeight: '100%' }}>Gmail: kavisnaturals@gmail.com</p>
-            <p className="text-sm" style={{ fontFamily: 'var(--font-sans)', fontWeight: 400, fontSize: '15.75px', lineHeight: '100%' }}>Phone: +91 98422 22355, 98429 22355</p>
+            <p className="text-sm mt-3" style={{ fontWeight: 400, fontSize: '15.75px', lineHeight: '100%' }}>Gmail: kavisnaturals@gmail.com</p>
+            <p className="text-sm" style={{ fontWeight: 400, fontSize: '15.75px', lineHeight: '100%' }}>Phone: +91 98422 22355, 98429 22355</p>
           </div>
 
           {/* Middle: Useful Links & Help */}
           <div className="grid grid-cols-2 gap-8 lg:gap-12">
               <div className="space-y-4 text-left">
-                <h3 style={{ fontFamily: 'var(--font-sans)', fontWeight: 600, fontSize: '18px', lineHeight: '150%', letterSpacing: '0%' }}>Useful Links</h3>
+                <h3 style={{ fontWeight: 600, fontSize: '18px', lineHeight: '150%', letterSpacing: '0%' }}>Useful Links</h3>
                 <ul className="space-y-3 mt-2">
-                  <li><a href="#"  style={{ fontFamily: 'var(--font-sans)', fontWeight: 400, fontSize: '15.75px', lineHeight: '150%', letterSpacing: '0%' }} className="text-gray-900 text-sm">Home</a></li>
-                  <li><a href="#"  style={{ fontFamily: 'var(--font-sans)', fontWeight: 400, fontSize: '15.75px', lineHeight: '150%', letterSpacing: '0%' }} className="text-gray-900 text-sm">Shop</a></li>
-                  <li><a href="#"  style={{ fontFamily: 'var(--font-sans)', fontWeight: 400, fontSize: '15.75px', lineHeight: '150%', letterSpacing: '0%' }} className="text-gray-900 text-sm">Cart</a></li>
-                  <li><a href="#"  style={{ fontFamily: 'var(--font-sans)', fontWeight: 400, fontSize: '15.75px', lineHeight: '150%', letterSpacing: '0%' }} className="text-gray-900 text-sm">Track Order</a></li>
+                  <li><a href="#"  style={{ fontWeight: 400, fontSize: '15.75px', lineHeight: '150%', letterSpacing: '0%' }} className="text-gray-900 text-sm">Home</a></li>
+                  <li><a href="#"  style={{ fontWeight: 400, fontSize: '15.75px', lineHeight: '150%', letterSpacing: '0%' }} className="text-gray-900 text-sm">Shop</a></li>
+                  <li><a href="#"  style={{ fontWeight: 400, fontSize: '15.75px', lineHeight: '150%', letterSpacing: '0%' }} className="text-gray-900 text-sm">Cart</a></li>
+                  <li><a href="#"  style={{ fontWeight: 400, fontSize: '15.75px', lineHeight: '150%', letterSpacing: '0%' }} className="text-gray-900 text-sm">Track Order</a></li>
                 </ul>
               </div>
 
               <div className="space-y-4 text-left">
-                <h3 style={{ fontFamily: 'var(--font-sans)' , fontWeight: 600, fontSize: '18px', lineHeight: '150%', letterSpacing: '0%' }}>Help</h3>
+                <h3 style={{ fontWeight: 600, fontSize: '18px', lineHeight: '150%', letterSpacing: '0%' }}>Help</h3>
                 <ul className="space-y-3 mt-2">
-                  <li><a href="#"  style={{ fontFamily: 'var(--font-sans)', fontWeight: 400, fontSize: '15.75px', lineHeight: '150%', letterSpacing: '0%' }} className="text-gray-900 text-sm">Privacy Policy</a></li>
-                  <li><a href="#"  style={{ fontFamily: 'var(--font-sans)', fontWeight: 400, fontSize: '15.75px', lineHeight: '150%', letterSpacing: '0%' }} className="text-gray-900 text-sm">Terms & Conditions</a></li>
-                  <li><a href="#"  style={{ fontFamily: 'var(--font-sans)', fontWeight: 400, fontSize: '15.75px', lineHeight: '150%', letterSpacing: '0%' }} className="text-gray-900 text-sm">Shipping Policy</a></li>
-                  <li><a href="#"  style={{ fontFamily: 'var(--font-sans)', fontWeight: 400, fontSize: '15.75px', lineHeight: '150%', letterSpacing: '0%' }} className="text-gray-900 text-sm">Cancellations & Returns</a></li>
+                  <li><a href="#"  style={{ fontWeight: 400, fontSize: '15.75px', lineHeight: '150%', letterSpacing: '0%' }} className="text-gray-900 text-sm">Privacy Policy</a></li>
+                  <li><a href="#"  style={{ fontWeight: 400, fontSize: '15.75px', lineHeight: '150%', letterSpacing: '0%' }} className="text-gray-900 text-sm">Terms & Conditions</a></li>
+                  <li><a href="#"  style={{ fontWeight: 400, fontSize: '15.75px', lineHeight: '150%', letterSpacing: '0%' }} className="text-gray-900 text-sm">Shipping Policy</a></li>
+                  <li><a href="#"  style={{ fontWeight: 400, fontSize: '15.75px', lineHeight: '150%', letterSpacing: '0%' }} className="text-gray-900 text-sm">Cancellations & Returns</a></li>
                 </ul>
               </div>
           </div>
@@ -52,7 +52,7 @@ const Footer = () => {
           {/* Right: Newsletter & small payment icons */}
           <div className="space-y-4 flex flex-col items-start w-3/4 lg:w-full lg:col-span-1">
             <h3 className="force-sans" style={{ fontWeight: 600, fontSize: '16px', lineHeight: '150%', letterSpacing: '0%' }}>Join our Community</h3>
-            <p className="text-sm" style={{ fontFamily: 'var(--font-sans)', fontWeight: 400, fontSize: '15px', lineHeight: '150%' }}>
+            <p className="text-sm" style={{ fontWeight: 400, fontSize: '15px', lineHeight: '150%' }}>
               Stay informed about our latest offers, bulk order discounts, and exclusive deals. Sign up now to receive updates directly in your inbox.
             </p>
 
@@ -70,7 +70,7 @@ const Footer = () => {
       <div className="max-w-7xl mx-auto px-6 pb-6 border-t border-black/10">
         <div className="pt-6">
           <div>
-            <h5 style={{ fontFamily: 'var(--font-sans)', fontWeight: 600, fontSize: '20px', lineHeight: '150%', letterSpacing: '0%' }} className="mb-4">Follow us on</h5>
+            <h5 style={{ fontWeight: 600, fontSize: '20px', lineHeight: '150%', letterSpacing: '0%' }} className="mb-4">Follow us on</h5>
             <div className="flex items-center space-x-3">
               <a href="#" className="w-10 h-10 border border-black/20 rounded flex items-center justify-center text-black">
                 <Facebook size={16} />

@@ -159,7 +159,7 @@ const BestSellers = () => {
                 {/* Product Description */}
                 <p
                   className="text-gray-600 mb-3"
-                  style={{ fontFamily: 'var(--font-sans)', fontWeight: 400, fontSize: '14px', lineHeight: '100%', letterSpacing: '0%' }}
+                  style={{ fontWeight: 400, fontSize: '14px', lineHeight: '100%', letterSpacing: '0%' }}
                 >
                   {product.category === 'Hair Care' ? 'Frizz-Free, Strong & Health Hair' : 
                    product.category === 'Home Care' ? 'Hair Cleanser & hair strong and shiny' :
