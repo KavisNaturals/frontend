@@ -51,7 +51,7 @@ const OurPromise = () => {
         </div>
 
         {/* Promises Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-5 lg:grid-cols-5 gap-8 lg:gap-6 items-start">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-10 items-start">
           {promises.map((promise) => {
             return (
               <div
@@ -73,7 +73,7 @@ const OurPromise = () => {
                   <h3 className="text-lg font-bold text-gray-900">
                     {promise.title}
                   </h3>
-                  <p className="text-sm text-gray-900/85 leading-relaxed hidden lg:block">
+                  <p className="text-sm text-gray-900/85 leading-relaxed">
                     {promise.description}
                   </p>
                 </div>

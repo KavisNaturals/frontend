@@ -2,37 +2,38 @@
 
 import React from 'react'
 import { Swiper, SwiperSlide } from 'swiper/react'
-import { Pagination, Autoplay } from 'swiper/modules'
+import { Navigation, Pagination, Autoplay } from 'swiper/modules'
 
 // Import Swiper styles
 import 'swiper/css'
+import 'swiper/css/navigation'
 import 'swiper/css/pagination'
 
 const HeroBanner = () => {
   const bannerImages = [
     {
       id: 1,
-      src: '/images/banner-2.png',
+      src: '/images/banner.png',
       alt: 'Natural Organic Products Banner 1'
     },
     {
       id: 2,
-      src: '/images/banner-3.png',
+      src: '/images/banner.png',
       alt: 'Natural Organic Products Banner 2'
     },
     {
       id: 3,
-      src: '/images/banner-2.png',
+      src: '/images/banner.png',
       alt: 'Natural Organic Products Banner 3'
     },
     {
       id: 4,
-      src: '/images/banner-3.png',
+      src: '/images/banner.png',
       alt: 'Natural Organic Products Banner 4'
     },
     {
       id: 5,
-      src: '/images/banner-2.png',
+      src: '/images/banner.png',
       alt: 'Natural Organic Products Banner 5'
     }
   ]
@@ -40,10 +41,10 @@ const HeroBanner = () => {
   return (
     <section className="relative w-full">
       <Swiper
-        modules={[Pagination, Autoplay]}
+        modules={[Navigation, Pagination, Autoplay]}
         spaceBetween={0}
         slidesPerView={1}
-        navigation={false}
+        navigation={true}
         pagination={{ 
           clickable: true,
           dynamicBullets: true 
@@ -53,7 +54,7 @@ const HeroBanner = () => {
           disableOnInteraction: false,
         }}
         loop={true}
-        className="w-full h-[150px] sm:h-[250px] md:h-[300px] lg:h-[400px]"
+        className="w-full h-[320px] md:h-[320px] lg:h-[400px]"
       >
         {bannerImages.map((banner) => (
           <SwiperSlide key={banner.id}>
@@ -62,7 +63,7 @@ const HeroBanner = () => {
               <img 
                 src={banner.src}
                 alt={banner.alt}
-                className="w-full h-full object-cover object-center"
+                className="w-full h-full  object-cover"
                 onError={(e) => {
                   // Fallback to placeholder if image fails to load
                   e.currentTarget.src = 'data:image/svg+xml;base64,' + btoa(`
@@ -82,6 +83,21 @@ const HeroBanner = () => {
 
       {/* Custom Swiper Styles */}
       <style jsx global>{`
+        .swiper-button-next,
+        .swiper-button-prev {
+          color: #9EE94C !important;
+          background: rgba(255, 255, 255, 0.9);
+          border-radius: 50%;
+          width: 44px !important;
+          height: 44px !important;
+          margin-top: -22px !important;
+        }
+        
+        .swiper-button-next:after,
+        .swiper-button-prev:after {
+          font-size: 18px !important;
+          font-weight: bold;
+        }
         
         .swiper-pagination-bullet {
           background: rgba(255, 255, 255, 0.5) !important;

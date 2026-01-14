@@ -10,14 +10,6 @@
   box-sizing: border-box;
   padding: 0;
   margin: 0;
-  /* Force anti-aliasing for consistent rendering */
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  /* Prevent text size adjustment on mobile devices */
-  -webkit-text-size-adjust: 100%;
-  -moz-text-size-adjust: 100%;
-  -ms-text-size-adjust: 100%;
-  text-size-adjust: 100%;
 }
 
 html,
@@ -27,115 +19,87 @@ body {
 }
 
 body {
-  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif !important;
+  font-family: 'Roboto', sans-serif;
   line-height: 100%;
   color: #333;
-  /* Ensure our font takes priority over system fonts */
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
 }
 
 :root {
-  --font-heading: 'Bigshot One', serif;
-  --font-sans: 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-heading: 'Bigshot One';
+  --font-sans: 'Roboto', sans-serif;
   --heading-color: rgba(0,0,0,1);
   --subtitle-color: rgba(56,56,56,1);
 }
 
 /* Section title using Bigshot One (design spec) */
 .section-title {
-  font-family: var(--font-heading) !important;
+  font-family: var(--font-heading);
   color: var(--heading-color);
-  font-size: 48px;
-  font-weight: 700;
-  line-height: 64.12px;
-  letter-spacing: 0.02em;
+  font-size: 36px;
+  font-weight: 600;
+  letter-spacing: 2%;
   text-align: center;
 }
 
 /* Section subtitle using Roboto (design spec) */
 .section-subtitle {
-  font-family: var(--font-sans) !important;
+  font-family: var(--font-sans);
   color: var(--subtitle-color);
   font-size: 32px;
   font-weight: 500;
   line-height: 47px;
-  letter-spacing: 0em;
+  letter-spacing: 0%;
   text-align: center;
 }
 
-/* Force custom fonts on all elements */
-input, textarea, button, select {
-  font-family: var(--font-sans) !important;
-}
-
-h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-heading) !important;
-}
-
-/* Utility to force the site sans font when !important is required */
-.force-sans {
-  font-family: var(--font-sans) !important;
-}
-
-/* Mobile responsive font sizes */
-@media (max-width: 768px) {
-  .section-title {
-    font-size: 32px;
-    line-height: 42px;
-  }
-  
-  .section-subtitle {
-    font-size: 24px;
-    line-height: 32px;
-  }
-}
-
-/* Decorative underline for subtitles - exact text width */
+/* Decorative underline for subtitles */
 .subtitle-underline {
   display: inline-block;
   position: relative;
-  padding-bottom: 8px;
 }
 .subtitle-underline::after {
     content: '';
     position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 0;
-  width: 100%;
-  height: 2px;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 4px;
+    width: 12rem;
+    height: 2px;
     background: var(--subtitle-color);
     border-radius: 2px;
 }
 
 @media (max-width: 640px) {
   .subtitle-underline::after {
-    height: 1px;
+    width: 120px;
+    bottom: -6px;
+    height: 3px;
   }
 }
 
-/* Decorative underline for section titles - exact text width */
+/* Decorative underline for section titles (larger style) */
 .title-underline {
   display: inline-block;
   position: relative;
-  padding-bottom: 1px;
+  padding-bottom: 14px;
 }
 .title-underline::after {
   content: '';
   position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  width: 100%;
-  height: 2px;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: -2px;
+  width: 220px;
+  height: 4px;
   background: var(--heading-color);
-  border-radius: 2px;
+  border-radius: 3px;
 }
 
 @media (max-width: 640px) {
   .title-underline::after {
-    height: 1px;
+    width: 160px;
+    bottom: -8px;
+    height: 4px;
   }
 }
 

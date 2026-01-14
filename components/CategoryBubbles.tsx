@@ -9,26 +9,26 @@ const CategoryBubbles = () => {
       id: 1,
       name: 'Personal Care',
       imagePath: '/images/personal-care.png',
-      
+      description: 'Natural skincare and beauty products'
     },
     {
       id: 2,
       name: 'Health Care',
       imagePath: '/images/health-care.png',
-      
+      description: 'Wellness and health supplements'
     },
     {
       id: 3,
       name: 'Home Care',
       imagePath: '/images/home-care.png',
-      
+      description: 'Eco-friendly cleaning products'
     }
   ]
 
   return (
     <section className="py-16 bg-gray-50">
       <div className="max-w-7xl mx-auto px-4">
-        <div className="grid grid-cols-3 gap-6 justify-items-center">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 justify-items-center">
           {categories.map((category) => (
             <div
               key={category.id}
@@ -37,7 +37,7 @@ const CategoryBubbles = () => {
               <div className="text-center space-y-4">
                 {/* Circular Image Container */}
                 <div className="relative">
-                  <div className="w-28 h-28 sm:w-32 sm:h-32 md:w-40 md:h-40 lg:w-48 lg:h-48 mx-auto rounded-full overflow-hidden shadow-card group-hover:shadow-xl transition-all duration-300 relative">
+                  <div className="w-40 h-40 lg:w-48 lg:h-48 mx-auto rounded-full overflow-hidden shadow-card group-hover:shadow-xl transition-all duration-300 relative">
                     <Image
                       src={category.imagePath}
                       alt={category.name}
@@ -52,18 +52,12 @@ const CategoryBubbles = () => {
 
                 {/* Category Title */}
                 <div className="space-y-2">
-                  <h3
-                    className="text-gray-800 group-hover:text-primary transition-colors"
-                    style={{
-                      fontWeight: 500,
-                      fontSize: '24px',
-                      lineHeight: '100%',
-                      letterSpacing: '0%'
-                    }}
-                  >
+                  <h3 className="text-xl font-semibold text-gray-800 group-hover:text-primary transition-colors">
                     {category.name}
                   </h3>
-                 
+                  <p className="text-sm text-gray-600 max-w-48 mx-auto">
+                    {category.description}
+                  </p>
                 </div>
               </div>
             </div>

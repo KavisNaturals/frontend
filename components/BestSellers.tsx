@@ -1,6 +1,7 @@
 'use client'
 
 import React from 'react'
+import Link from 'next/link'
 import { Star, Heart, ShoppingCart, Eye } from 'lucide-react'
 import Image from 'next/image'
 
@@ -104,9 +105,10 @@ const BestSellers = () => {
         {/* Products Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
           {products.map((product) => (
-            <div
+            <Link
               key={product.id}
-              className="bg-gray-50 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden group relative"
+              href={`/product/${product.id}`}
+              className="bg-gray-50 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden group relative block"
             >
               {/* Product Image */}
               <div className="relative aspect-square  overflow-hidden">
@@ -115,13 +117,13 @@ const BestSellers = () => {
                     src={product.imagePath}
                     alt={product.name}
                     fill
-                    className="object-contain p-3"
+                    className="object-contain p-6"
                   />
                 </div>
               </div>
 
               {/* Hover Action Buttons */}
-              <div className="absolute bottom-[15rem] left-4 right-4 flex justify-center space-x-4 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-4 group-hover:translate-y-0">
+              <div className="absolute bottom-[20rem] left-4 right-4 flex justify-center space-x-4 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-4 group-hover:translate-y-0">
                 <button className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-md hover:bg-primary hover:text-white transition-colors">
                   <ShoppingCart size={18} />
                 </button>
@@ -134,7 +136,7 @@ const BestSellers = () => {
               </div>
 
               {/* Product Info */}
-              <div className="pb-3 text-center">
+              <div className="p-6 text-center">
                 {/* Rating */}
                 <div className="flex items-center justify-center space-x-2 mb-3">
                   {renderStars(product.rating)}
@@ -144,23 +146,12 @@ const BestSellers = () => {
                 </div>
 
                 {/* Product Name */}
-                <h3
-                  className="text-gray-800 mb-3 force-sans"
-                  style={{
-                    fontWeight: 700,
-                    fontSize: '20px',
-                    lineHeight: '100%',
-                    letterSpacing: '0%'
-                  }}
-                >
+                <h3 className="font-semibold text-gray-800 mb-3 text-lg">
                   {product.name}
                 </h3>
                 
                 {/* Product Description */}
-                <p
-                  className="text-gray-600 mb-3"
-                  style={{ fontWeight: 400, fontSize: '14px', lineHeight: '100%', letterSpacing: '0%' }}
-                >
+                <p className="text-sm text-gray-600 mb-3">
                   {product.category === 'Hair Care' ? 'Frizz-Free, Strong & Health Hair' : 
                    product.category === 'Home Care' ? 'Hair Cleanser & hair strong and shiny' :
                    'reducing hair fall & breakage'}
@@ -178,11 +169,10 @@ const BestSellers = () => {
                 
                 <p className="text-xs text-gray-500">You'll Save ₹35</p>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
 
-  
       </div>
     </section>
   )
