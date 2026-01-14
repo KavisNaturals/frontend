@@ -2,17 +2,25 @@
 
 import React, { useState, useEffect, useRef } from 'react'
 import { Search, User, Heart, ShoppingCart, Menu, ChevronDown, X } from 'lucide-react'
+import AuthModal from './AuthModal'
 
 const Header = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false)
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false)
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
+  const userDropdownRef = useRef<HTMLDivElement>(null)
 
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setIsDropdownOpen(false)
+      }
+      if (userDropdownRef.current && !userDropdownRef.current.contains(event.target as Node)) {
+        setIsUserDropdownOpen(false)
       }
     }
 
@@ -115,20 +123,79 @@ const Header = () => {
                 <Search size={24} strokeWidth={1.5} />
               </button>
               
-              {/* User icon - hidden on small mobile */}
-              <button className="hidden sm:flex flex-col items-center text-black hover:text-primary transition-colors">
-                <User size={24} className="lg:w-7 lg:h-7" strokeWidth={1.5} />
-              </button>
+              {/* User icon - dropdown menu */}
+              <div className="relative hidden sm:block" ref={userDropdownRef}>
+                <button 
+                  onClick={() => setIsUserDropdownOpen(!isUserDropdownOpen)}
+                  className="flex flex-col items-center text-black hover:text-primary transition-colors"
+                >
+                  <User size={24} className="lg:w-7 lg:h-7" strokeWidth={1.5} />
+                </button>
+                
+                {/* User Dropdown Menu */}
+                {isUserDropdownOpen && (
+                  <div className="absolute right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-xl z-50 min-w-[200px]">
+                    {isLoggedIn ? (
+                      <>
+                        <a
+                          href="/my-account"
+                          className="block px-4 py-3 text-gray-700 hover:bg-primary hover:text-black transition-colors border-b border-gray-100 font-roboto font-medium text-base"
+                          onClick={() => setIsUserDropdownOpen(false)}
+                        >
+                          My Account
+                        </a>
+                        <a
+                          href="/my-orders"
+                          className="block px-4 py-3 text-gray-700 hover:bg-primary hover:text-black transition-colors border-b border-gray-100 font-roboto font-medium text-base"
+                          onClick={() => setIsUserDropdownOpen(false)}
+                        >
+                          My Orders
+                        </a>
+                        <button
+                          onClick={() => {
+                            setIsLoggedIn(false)
+                            setIsUserDropdownOpen(false)
+                          }}
+                          className="w-full text-left px-4 py-3 text-gray-700 hover:bg-primary hover:text-black transition-colors font-roboto font-medium text-base"
+                        >
+                          Logout
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <button
+                          onClick={() => {
+                            setIsAuthModalOpen(true)
+                            setIsUserDropdownOpen(false)
+                          }}
+                          className="w-full text-left px-4 py-3 text-gray-700 hover:bg-primary hover:text-black transition-colors border-b border-gray-100 font-roboto font-medium text-base"
+                        >
+                          Login
+                        </button>
+                        <button
+                          onClick={() => {
+                            setIsAuthModalOpen(true)
+                            setIsUserDropdownOpen(false)
+                          }}
+                          className="w-full text-left px-4 py-3 text-gray-700 hover:bg-primary hover:text-black transition-colors font-roboto font-medium text-base"
+                        >
+                          Sign Up
+                        </button>
+                      </>
+                    )}
+                  </div>
+                )}
+              </div>
               
-              {/* Heart icon */}
-              <button className="flex flex-col items-center text-black hover:text-primary transition-colors relative">
+              {/* Heart icon - navigate to wishlist */}
+              <a href="/wishlist" className="flex flex-col items-center text-black hover:text-primary transition-colors relative">
                 <Heart size={24} className="lg:w-7 lg:h-7" strokeWidth={1.5} />
-              </button>
+              </a>
               
-              {/* Cart icon */}
-              <button className="flex flex-col items-center text-black hover:text-primary transition-colors relative">
+              {/* Cart icon - navigate to shop */}
+              <a href="/shop" className="flex flex-col items-center text-black hover:text-primary transition-colors relative">
                 <ShoppingCart size={24} className="lg:w-7 lg:h-7" strokeWidth={1.5} />
-              </button>
+              </a>
             </div>
           </div>
         </div>
@@ -167,19 +234,25 @@ const Header = () => {
 
             {/* Navigation Links */}
             <nav className="flex space-x-12">
-              <a href="#" className="text-black hover:text-primary font-roboto font-semibold text-2xl leading-none tracking-normal transition-colors">
+              <a href="/" className="text-black hover:text-primary font-roboto font-semibold text-2xl leading-none tracking-normal transition-colors">
                 Home
               </a>
-              <a href="#" className="text-black hover:text-primary font-roboto font-semibold text-2xl leading-none tracking-normal transition-colors">
+              <a href="/shop" className="text-black hover:text-primary font-roboto font-semibold text-2xl leading-none tracking-normal transition-colors">
                 Shop
               </a>
-              <a href="#" className="text-black hover:text-primary font-roboto font-semibold text-2xl leading-none tracking-normal transition-colors">
+              <a href="/track-order" className="text-black hover:text-primary font-roboto font-semibold text-2xl leading-none tracking-normal transition-colors">
                 Track Order
               </a>
-              <a href="#" className="text-black hover:text-primary font-roboto font-semibold text-2xl leading-none tracking-normal transition-colors">
+              <a href="/return" className="text-black hover:text-primary font-roboto font-semibold text-2xl leading-none tracking-normal transition-colors">
                 Return
               </a>
-              <a href="#" className="text-black hover:text-primary font-roboto font-semibold text-2xl leading-none tracking-normal transition-colors">
+              {/* <a href="/wishlist" className="text-black hover:text-primary font-roboto font-semibold text-2xl leading-none tracking-normal transition-colors">
+                Wishlist
+              </a>
+              <a href="/my-orders" className="text-black hover:text-primary font-roboto font-semibold text-2xl leading-none tracking-normal transition-colors">
+                My Orders
+              </a> */}
+              <a href="/contact" className="text-black hover:text-primary font-roboto font-semibold text-2xl leading-none tracking-normal transition-colors">
                 Contact
               </a>
             </nav>
@@ -251,35 +324,56 @@ const Header = () => {
             <nav className="p-4 space-y-2">
               <h3 className="font-roboto font-semibold text-lg mb-3 text-gray-700">Navigation</h3>
               <a 
-                href="#" 
+                href="/" 
                 className="block px-4 py-3 text-black hover:bg-gray-100 rounded-lg font-roboto font-medium text-base transition-colors"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 Home
               </a>
               <a 
-                href="#" 
+                href="/shop" 
                 className="block px-4 py-3 text-black hover:bg-gray-100 rounded-lg font-roboto font-medium text-base transition-colors"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 Shop
               </a>
               <a 
-                href="#" 
+                href="/track-order" 
                 className="block px-4 py-3 text-black hover:bg-gray-100 rounded-lg font-roboto font-medium text-base transition-colors"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 Track Order
               </a>
               <a 
-                href="#" 
+                href="/return" 
                 className="block px-4 py-3 text-black hover:bg-gray-100 rounded-lg font-roboto font-medium text-base transition-colors"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 Return
               </a>
               <a 
-                href="#" 
+                href="/wishlist" 
+                className="block px-4 py-3 text-black hover:bg-gray-100 rounded-lg font-roboto font-medium text-base transition-colors"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Wishlist
+              </a>
+              <a 
+                href="/my-orders" 
+                className="block px-4 py-3 text-black hover:bg-gray-100 rounded-lg font-roboto font-medium text-base transition-colors"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                My Orders
+              </a>
+              <a 
+                href="/my-account" 
+                className="block px-4 py-3 text-black hover:bg-gray-100 rounded-lg font-roboto font-medium text-base transition-colors"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                My Account
+              </a>
+              <a 
+                href="/contact" 
                 className="block px-4 py-3 text-black hover:bg-gray-100 rounded-lg font-roboto font-medium text-base transition-colors"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
@@ -301,6 +395,12 @@ const Header = () => {
           </div>
         </div>
       </div>
+      
+      {/* Auth Modal */}
+      <AuthModal 
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+      />
     </header>
   )
 }

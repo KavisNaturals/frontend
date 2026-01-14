@@ -9,7 +9,7 @@ import 'swiper/css'
 import 'swiper/css/navigation'
 import 'swiper/css/pagination'
 
-const HeroBanner = () => {
+const HeroBanner = ({ onSignUpClick }: { onSignUpClick?: () => void }) => {
   const bannerImages = [
     {
       id: 1,
@@ -76,6 +76,16 @@ const HeroBanner = () => {
                   `)
                 }}
               />
+              
+              {/* Sign Up CTA Button Overlay */}
+              <div className="absolute inset-0 flex items-center justify-center">
+                <button
+                  onClick={onSignUpClick}
+                  className="bg-primary hover:bg-primary-dark text-black font-bold py-3 px-8 rounded-lg transition-colors text-lg shadow-lg"
+                >
+                  Sign Up Now & Get 15% Off
+                </button>
+              </div>
             </div>
           </SwiperSlide>
         ))}
