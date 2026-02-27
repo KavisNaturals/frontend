@@ -6,14 +6,15 @@ import Link from 'next/link'
 import Image from 'next/image'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
-import { ordersApi, type Order, API_BASE_URL } from '@/lib/api'
+import { ordersApi, type Order, API_BASE_URL, normalizeUrl } from '@/lib/api'
 import { useAuth } from '@/context/AuthContext'
 import { Package, MapPin, CreditCard, ChevronLeft, Truck } from 'lucide-react'
 
 function getProductImage(product: any) {
   const url = product?.imageUrl || product?.image_url || product?.imagePath || product?.image_path
   if (!url) return '/images/placeholder.svg'
-  if (url.startsWith('http') || url.startsWith('/')) return url
+  if (url.startsWith('/')) return url
+  if (url.startsWith('http')) return normalizeUrl(url)
   return `${API_BASE_URL}/uploads/${url}`
 }
 

@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react'
 import { Swiper, SwiperSlide } from 'swiper/react'
 import { Navigation, Pagination, Autoplay } from 'swiper/modules'
-import { bannersApi, Banner, API_BASE_URL } from '@/lib/api'
+import { bannersApi, Banner, API_BASE_URL, normalizeUrl } from '@/lib/api'
 
 // Import Swiper styles
 import 'swiper/css'
@@ -20,7 +20,8 @@ const FALLBACK_BANNERS = [1, 2, 3].map((id) => ({
 function getBannerImageUrl(banner: Banner) {
   const p = banner.image_path
   if (!p) return '/images/banner.png'
-  if (p.startsWith('http') || p.startsWith('/')) return p
+  if (p.startsWith('/')) return p
+  if (p.startsWith('http')) return normalizeUrl(p)
   return `${API_BASE_URL}/uploads/${p}`
 }
 

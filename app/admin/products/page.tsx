@@ -5,19 +5,15 @@ import AdminLayout from '@/components/admin/AdminLayout'
 import Link from 'next/link'
 import Image from 'next/image'
 import { MoreVertical, TrendingUp } from 'lucide-react'
-import { API_BASE_URL, productsApi, type Product } from '@/lib/api'
+import { API_BASE_URL, normalizeUrl, productsApi, type Product } from '@/lib/api'
 import { useAuth } from '@/context/AuthContext'
 import { useRouter } from 'next/navigation'
 
 function getImage(product: Product) {
-  let url = product.imageUrl || product.image_url || product.imagePath || product.image_path
+  const url = product.imageUrl || product.image_url || product.imagePath || product.image_path
   if (!url) return '/images/admin/product-image.png'
-  if (url.startsWith('http') || url.startsWith('/')) {
-    if (url.includes('localhost')) {
-      return url.replace(/https?:\/\/localhost(:\d+)?/, API_BASE_URL)
-    }
-    return url
-  }
+  if (url.startsWith('/')) return url
+  if (url.startsWith('http')) return normalizeUrl(url)
   return `${API_BASE_URL}/uploads/${url}`
 }
 

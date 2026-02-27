@@ -7,21 +7,16 @@ import { Star, ZoomIn, X } from "lucide-react";
 import Image from "next/image";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { productsApi, reviewsApi, API_BASE_URL, type Product, type Review } from "@/lib/api";
+import { productsApi, reviewsApi, API_BASE_URL, normalizeUrl, type Product, type Review } from "@/lib/api";
 import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
 import { useAuth } from "@/context/AuthContext";
 
 function getImage(p: any) {
-  let url = p?.imageUrl || p?.image_url || p?.imagePath || p?.image_path;
+  const url = p?.imageUrl || p?.image_url || p?.imagePath || p?.image_path;
   if (!url) return '/images/shop-cart/img-1.png';
-  if (url.startsWith('http') || url.startsWith('/')) {
-    // rewrite localhost references to current API_BASE_URL in prod
-    if (url.includes('localhost')) {
-      return url.replace(/https?:\/\/localhost(:\d+)?/, API_BASE_URL);
-    }
-    return url;
-  }
+  if (url.startsWith('/')) return url;
+  if (url.startsWith('http')) return normalizeUrl(url);
   return `${API_BASE_URL}/uploads/${url}`;
 }
 

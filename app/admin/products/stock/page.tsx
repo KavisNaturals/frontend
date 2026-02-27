@@ -2,20 +2,16 @@
 
 import React, { useEffect, useState } from 'react'
 import AdminLayout from '@/components/admin/AdminLayout'
-import { productsApi, type Product, API_BASE_URL } from '@/lib/api'
+import { productsApi, type Product, API_BASE_URL, normalizeUrl } from '@/lib/api'
 import { useAuth } from '@/context/AuthContext'
 import { useRouter } from 'next/navigation'
 import { Save, Search, Package, AlertCircle } from 'lucide-react'
 
 function getImage(product: Product) {
-  let url = product.imageUrl || product.image_url || product.imagePath || product.image_path
+  const url = product.imageUrl || product.image_url || product.imagePath || product.image_path
   if (!url) return '/images/admin/product-image.png'
-  if (url.startsWith('http') || url.startsWith('/')) {
-    if (url.includes('localhost')) {
-      return url.replace(/https?:\/\/localhost(:\d+)?/, API_BASE_URL)
-    }
-    return url
-  }
+  if (url.startsWith('/')) return url
+  if (url.startsWith('http')) return normalizeUrl(url)
   return `${API_BASE_URL}/uploads/${url}`
 }
 

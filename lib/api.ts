@@ -3,6 +3,11 @@ import { getToken, getRefreshToken, saveAuth, clearAuth } from './auth';
 export const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL || 'https://api.kavisnaturals.cloud';
 
+/** Replace any localhost-based origin in a stored URL with the configured API base URL. */
+export function normalizeUrl(url: string): string {
+  return url.replace(/https?:\/\/localhost(:\d+)?/, API_BASE_URL);
+}
+
 /** Return auth header object if token exists. */
 export function authHeader(): Record<string, string> {
   const token = getToken();

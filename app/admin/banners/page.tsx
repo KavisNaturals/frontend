@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react'
 import AdminLayout from '@/components/admin/AdminLayout'
 import Image from 'next/image'
 import { Trash2, Upload, ToggleLeft, ToggleRight, Plus } from 'lucide-react'
-import { bannersApi, uploadApi, API_BASE_URL, type Banner } from '@/lib/api'
+import { bannersApi, uploadApi, API_BASE_URL, normalizeUrl, type Banner } from '@/lib/api'
 import { useAuth } from '@/context/AuthContext'
 import { useRouter } from 'next/navigation'
 import toast from 'react-hot-toast'
@@ -13,7 +13,8 @@ import { toastConfirm } from '@/lib/toastConfirm'
 function getBannerUrl(banner: Banner) {
   const p = banner.image_path
   if (!p) return '/images/banner.png'
-  if (p.startsWith('http') || p.startsWith('/')) return p
+  if (p.startsWith('/')) return p
+  if (p.startsWith('http')) return normalizeUrl(p)
   return `${API_BASE_URL}/uploads/${p}`
 }
 

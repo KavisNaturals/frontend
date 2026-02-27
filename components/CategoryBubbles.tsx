@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react'
 import Image from 'next/image'
-import { categoriesApi, API_BASE_URL, type Category } from '@/lib/api'
+import { categoriesApi, API_BASE_URL, normalizeUrl, type Category } from '@/lib/api'
 
 const CategoryBubbles = () => {
   const [categories, setCategories] = useState<Category[]>([])
@@ -15,7 +15,8 @@ const CategoryBubbles = () => {
 
   const getImageSrc = (imagePath?: string | null) => {
     if (!imagePath) return '/images/placeholder.svg'
-    if (imagePath.startsWith('http')) return imagePath
+    if (imagePath.startsWith('/')) return imagePath
+    if (imagePath.startsWith('http')) return normalizeUrl(imagePath)
     return `${API_BASE_URL}/uploads/${imagePath}`
   }
 

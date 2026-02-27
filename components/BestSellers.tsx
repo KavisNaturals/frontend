@@ -3,14 +3,15 @@
 import React, { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { Star, Heart, ShoppingCart, Eye } from 'lucide-react'
-import { productsApi, Product, API_BASE_URL } from '@/lib/api'
+import { productsApi, Product, API_BASE_URL, normalizeUrl } from '@/lib/api'
 import { useCart } from '@/context/CartContext'
 import { useWishlist } from '@/context/WishlistContext'
 
 function getProductImage(product: Product) {
   const url = product.imageUrl || product.image_url || product.imagePath || product.image_path
   if (!url) return '/images/placeholder.svg'
-  if (url.startsWith('http') || url.startsWith('/')) return url
+  if (url.startsWith('/')) return url
+  if (url.startsWith('http')) return normalizeUrl(url)
   return `${API_BASE_URL}/uploads/${url}`
 }
 

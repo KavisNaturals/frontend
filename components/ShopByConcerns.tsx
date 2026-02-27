@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { concernsApi, Concern, API_BASE_URL } from '@/lib/api'
+import { concernsApi, Concern, API_BASE_URL, normalizeUrl } from '@/lib/api'
 
 const FALLBACK: Concern[] = [
   { id: '1', title: 'Health Mix', image_path: '/images/health-mix.png', is_active: true },
@@ -14,7 +14,8 @@ const FALLBACK: Concern[] = [
 function getConcernImage(concern: Concern) {
   const p = concern.image_path
   if (!p) return '/images/placeholder.svg'
-  if (p.startsWith('http') || p.startsWith('/')) return p
+  if (p.startsWith('/')) return p
+  if (p.startsWith('http')) return normalizeUrl(p)
   return `${API_BASE_URL}/uploads/${p}`
 }
 

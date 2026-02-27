@@ -8,17 +8,13 @@ import Image from 'next/image'
 import { Star, ShoppingCart, Trash2, Eye } from 'lucide-react'
 import { useWishlist } from '@/context/WishlistContext'
 import { useCart } from '@/context/CartContext'
-import { API_BASE_URL } from '@/lib/api'
+import { API_BASE_URL, normalizeUrl } from '@/lib/api'
 
 function getImage(p: any) {
-  let url = p?.imageUrl || p?.image_url || p?.imagePath || p?.image_path;
-  if (!url) return '/images/placeholder.svg';
-  if (url.startsWith('http') || url.startsWith('/')) {
-    if (url.includes('localhost')) {
-      return url.replace(/https?:\/\/localhost(:\d+)?/, API_BASE_URL);
-    }
-    return url;
-  }
+  const url = p.imageUrl || p.image_url || p.imagePath || p.image_path
+  if (!url) return '/images/placeholder.svg'
+  if (url.startsWith('/')) return url
+  if (url.startsWith('http')) return normalizeUrl(url)
   return `${API_BASE_URL}/uploads/${url}`
 }
 

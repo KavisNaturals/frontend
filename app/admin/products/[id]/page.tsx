@@ -5,21 +5,17 @@ import AdminLayout from '@/components/admin/AdminLayout'
 import Link from 'next/link'
 import { Upload, X } from 'lucide-react'
 import Image from 'next/image'
-import { productsApi, uploadApi, categoriesApi, API_BASE_URL } from '@/lib/api'
+import { productsApi, uploadApi, categoriesApi, API_BASE_URL, normalizeUrl } from '@/lib/api'
 import { useAuth } from '@/context/AuthContext'
 import { useParams, useRouter } from 'next/navigation'
 import toast from 'react-hot-toast'
 import { toastConfirm } from '@/lib/toastConfirm'
 
 function getImage(product: any) {
-  let url = product?.imageUrl || product?.image_url || product?.imagePath || product?.image_path
+  const url = product?.imageUrl || product?.image_url || product?.imagePath || product?.image_path
   if (!url) return ''
-  if (url.startsWith('http') || url.startsWith('/')) {
-    if (url.includes('localhost')) {
-      return url.replace(/https?:\/\/localhost(:\d+)?/, API_BASE_URL)
-    }
-    return url
-  }
+  if (url.startsWith('/')) return url
+  if (url.startsWith('http')) return normalizeUrl(url)
   return `${API_BASE_URL}/uploads/${url}`
 }
 

@@ -8,7 +8,7 @@ import AuthModal from './AuthModal'
 import { useAuth } from '@/context/AuthContext'
 import { useCart } from '@/context/CartContext'
 import { useWishlist } from '@/context/WishlistContext'
-import { productsApi, categoriesApi, type Product, API_BASE_URL } from '@/lib/api'
+import { productsApi, categoriesApi, type Product, API_BASE_URL, normalizeUrl } from '@/lib/api'
 
 const Header = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
@@ -97,7 +97,8 @@ const Header = () => {
   const getProductImage = (p: Product) => {
     const url = p?.imageUrl || p?.image_url || p?.imagePath || p?.image_path
     if (!url) return '/images/shop-cart/img-1.png'
-    if (url.startsWith('http') || url.startsWith('/')) return url
+    if (url.startsWith('/')) return url
+    if (url.startsWith('http')) return normalizeUrl(url)
     return `${API_BASE_URL}/uploads/${url}`
   }
 
