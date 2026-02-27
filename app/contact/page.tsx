@@ -1,22 +1,30 @@
-'use client'
+﻿'use client'
 
 import React, { useState } from 'react'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import Link from 'next/link'
-import { AlignCenter } from 'lucide-react'
+import { contactApi } from '@/lib/api'
 
 const ContactPage = () => {
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    message: ''
-  })
+  const [formData, setFormData] = useState({ name: '', email: '', message: '' })
+  const [submitted, setSubmitted] = useState(false)
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    console.log('Contact form submitted:', formData)
-    // Handle form submission
+    setError('')
+    setLoading(true)
+    try {
+      await contactApi.submit(formData)
+      setSubmitted(true)
+      setFormData({ name: '', email: '', message: '' })
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Failed to send message')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -52,7 +60,15 @@ const ContactPage = () => {
                 If you've got great products you're making or looking to work with us then drop us a line.
               </p>
 
+              {submitted ? (
+                <div className="py-12 text-center">
+                  <div className="text-green-600 text-xl font-semibold mb-2">Message sent successfully!</div>
+                  <p className="text-gray-600">We'll get back to you shortly.</p>
+                  <button onClick={() => setSubmitted(false)} className="mt-4 text-primary font-semibold">Send another message</button>
+                </div>
+              ) : (
               <form onSubmit={handleSubmit} className="space-y-6">
+                {error && <div className="p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">{error}</div>}
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-gray-800 font-medium mb-2">Name</label>
@@ -92,11 +108,13 @@ const ContactPage = () => {
 
                 <button
                   type="submit"
-                  className="w-full bg-primary text-black font-bold py-4 rounded-xl hover:bg-primary-dark transition-colors"
+                  disabled={loading}
+                  className="w-full bg-primary text-black font-bold py-4 rounded-xl hover:bg-primary-dark transition-colors disabled:opacity-60"
                 >
-                  Send
+                  {loading ? 'Sending...' : 'Send'}
                 </button>
               </form>
+              )}
             </div>
 
             {/* Visit Our Store */}

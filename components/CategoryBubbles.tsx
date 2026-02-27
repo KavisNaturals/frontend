@@ -1,29 +1,23 @@
 'use client'
 
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import Image from 'next/image'
+import { categoriesApi, API_BASE_URL, type Category } from '@/lib/api'
 
 const CategoryBubbles = () => {
-  const categories = [
-    {
-      id: 1,
-      name: 'Personal Care',
-      imagePath: '/images/personal-care.png',
-      description: 'Natural skincare and beauty products'
-    },
-    {
-      id: 2,
-      name: 'Health Care',
-      imagePath: '/images/health-care.png',
-      description: 'Wellness and health supplements'
-    },
-    {
-      id: 3,
-      name: 'Home Care',
-      imagePath: '/images/home-care.png',
-      description: 'Eco-friendly cleaning products'
-    }
-  ]
+  const [categories, setCategories] = useState<Category[]>([])
+
+  useEffect(() => {
+    categoriesApi.getAll()
+      .then(data => setCategories(data))
+      .catch(() => {/* silently ignore */ })
+  }, [])
+
+  const getImageSrc = (imagePath?: string | null) => {
+    if (!imagePath) return '/images/placeholder.svg'
+    if (imagePath.startsWith('http')) return imagePath
+    return `${API_BASE_URL}/uploads/${imagePath}`
+  }
 
   return (
     <section className="py-16 bg-gray-50">
@@ -39,7 +33,7 @@ const CategoryBubbles = () => {
                 <div className="relative">
                   <div className="w-40 h-40 lg:w-48 lg:h-48 mx-auto rounded-full overflow-hidden shadow-card group-hover:shadow-xl transition-all duration-300 relative">
                     <Image
-                      src={category.imagePath}
+                      src={getImageSrc(category.image_path)}
                       alt={category.name}
                       fill
                       className="object-cover"
@@ -55,9 +49,11 @@ const CategoryBubbles = () => {
                   <h3 className="text-xl font-semibold text-gray-800 group-hover:text-primary transition-colors">
                     {category.name}
                   </h3>
-                  <p className="text-sm text-gray-600 max-w-48 mx-auto">
-                    {category.description}
-                  </p>
+                  {category.description && (
+                    <p className="text-sm text-gray-600 max-w-48 mx-auto">
+                      {category.description}
+                    </p>
+                  )}
                 </div>
               </div>
             </div>

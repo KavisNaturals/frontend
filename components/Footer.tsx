@@ -1,13 +1,21 @@
 'use client'
 
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Facebook, Instagram, Twitter, Youtube } from 'lucide-react'
+import { settingsApi, type SocialLinks } from '@/lib/api'
 
 const Footer = () => {
-  return (
-    <footer style={{ backgroundColor: '#9EE94C' }} className="text-gray-900">
+  const [socialLinks, setSocialLinks] = useState<SocialLinks>({})
+
+  useEffect(() => {
+    settingsApi.getSocialLinks()
+      .then(res => setSocialLinks(res.value || {}))
+      .catch(() => {})
+  }, [])
+
+  return (    <footer style={{ backgroundColor: '#9EE94C' }} className="text-gray-900">
       <div className="max-w-7xl mx-auto px-6 py-12">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
           {/* Left: Company info */}
@@ -72,18 +80,36 @@ const Footer = () => {
           <div>
             <h5 className="text-xl font-semibold mb-4">Follow us on</h5>
             <div className="flex items-center space-x-3">
-              <a href="#" className="w-10 h-10 border border-black/20 rounded flex items-center justify-center text-black">
-                <Facebook size={16} />
-              </a>
-              <a href="#" className="w-10 h-10 border border-black/20 rounded flex items-center justify-center text-black">
-                <Instagram size={16} />
-              </a>
-              <a href="#" className="w-10 h-10 border border-black/20 rounded flex items-center justify-center text-black">
-                <Twitter size={16} />
-              </a>
-              <a href="#" className="w-10 h-10 border border-black/20 rounded flex items-center justify-center text-black">
-                <Youtube size={16} />
-              </a>
+              {socialLinks.facebook && (
+                <a href={socialLinks.facebook} target="_blank" rel="noopener noreferrer" className="w-10 h-10 border border-black/20 rounded flex items-center justify-center text-black hover:bg-black/10 transition-colors">
+                  <Facebook size={16} />
+                </a>
+              )}
+              {socialLinks.instagram && (
+                <a href={socialLinks.instagram} target="_blank" rel="noopener noreferrer" className="w-10 h-10 border border-black/20 rounded flex items-center justify-center text-black hover:bg-black/10 transition-colors">
+                  <Instagram size={16} />
+                </a>
+              )}
+              {socialLinks.twitter && (
+                <a href={socialLinks.twitter} target="_blank" rel="noopener noreferrer" className="w-10 h-10 border border-black/20 rounded flex items-center justify-center text-black hover:bg-black/10 transition-colors">
+                  <Twitter size={16} />
+                </a>
+              )}
+              {socialLinks.youtube && (
+                <a href={socialLinks.youtube} target="_blank" rel="noopener noreferrer" className="w-10 h-10 border border-black/20 rounded flex items-center justify-center text-black hover:bg-black/10 transition-colors">
+                  <Youtube size={16} />
+                </a>
+              )}
+              {/* Show placeholder icons when no links are set yet */}
+              {!socialLinks.facebook && !socialLinks.instagram && !socialLinks.twitter && !socialLinks.youtube && (
+                <>
+                  {[Facebook, Instagram, Twitter, Youtube].map((Icon, i) => (
+                    <span key={i} className="w-10 h-10 border border-black/20 rounded flex items-center justify-center text-black/40">
+                      <Icon size={16} />
+                    </span>
+                  ))}
+                </>
+              )}
             </div>
           </div>
         </div>

@@ -1,17 +1,51 @@
 'use client'
 
 import React, { useState, useEffect, useRef } from 'react'
-import { Search, User, Heart, ShoppingCart, Menu, ChevronDown, X } from 'lucide-react'
+import { Search, User, Heart, ShoppingCart, Menu, X, Plus, Minus, Trash2 } from 'lucide-react'
+import Image from 'next/image'
+import { useRouter } from 'next/navigation'
 import AuthModal from './AuthModal'
+import { useAuth } from '@/context/AuthContext'
+import { useCart } from '@/context/CartContext'
+import { useWishlist } from '@/context/WishlistContext'
+import { productsApi, categoriesApi, type Product, API_BASE_URL } from '@/lib/api'
 
 const Header = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false)
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false)
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [isCartOpen, setIsCartOpen] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [searchResults, setSearchResults] = useState<Product[]>([])
+  const [showSearchDropdown, setShowSearchDropdown] = useState(false)
+  const [showMobileSearch, setShowMobileSearch] = useState(false)
+  const [categories, setCategories] = useState<string[]>([])
+  const router = useRouter()
   const dropdownRef = useRef<HTMLDivElement>(null)
   const userDropdownRef = useRef<HTMLDivElement>(null)
+  const searchRef = useRef<HTMLDivElement>(null)
+  const searchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const { isLoggedIn, logout } = useAuth()
+  const { count: cartCount, items: cartItems, total: cartTotal, removeItem, updateQty } = useCart()
+  const { count: wishlistCount } = useWishlist()
+
+  // Load categories from API
+  useEffect(() => {
+    categoriesApi.getAll()
+      .then(cats => {
+        if (cats && cats.length > 0) {
+          setCategories(cats.filter((c: any) => c.is_active !== false).map((c: any) => c.name))
+        } else {
+          // Fallback from products
+          categoriesApi.fromProducts().then(names => setCategories(names || [])).catch(() => {})
+        }
+      })
+      .catch(() => {
+        categoriesApi.fromProducts().then(names => setCategories(names || [])).catch(() => {})
+      })
+  }, [])
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -22,6 +56,9 @@ const Header = () => {
       if (userDropdownRef.current && !userDropdownRef.current.contains(event.target as Node)) {
         setIsUserDropdownOpen(false)
       }
+      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+        setShowSearchDropdown(false)
+      }
     }
 
     document.addEventListener('mousedown', handleClickOutside)
@@ -29,6 +66,21 @@ const Header = () => {
       document.removeEventListener('mousedown', handleClickOutside)
     }
   }, [])
+
+  // Prevent body scroll when mobile menu is open
+  useEffect(() => {
+    if (searchTimerRef.current) clearTimeout(searchTimerRef.current)
+    if (searchQuery.length < 2) { setSearchResults([]); setShowSearchDropdown(false); return }
+    searchTimerRef.current = setTimeout(async () => {
+      try {
+        const results = await productsApi.getAll({ search: searchQuery })
+        const arr = Array.isArray(results) ? results : (results as any)?.products || []
+        setSearchResults(arr.slice(0, 6))
+        setShowSearchDropdown(true)
+      } catch { /* silent */ }
+    }, 300)
+    return () => { if (searchTimerRef.current) clearTimeout(searchTimerRef.current) }
+  }, [searchQuery])
 
   // Prevent body scroll when mobile menu is open
   useEffect(() => {
@@ -42,14 +94,33 @@ const Header = () => {
     }
   }, [isMobileMenuOpen])
 
-  const categories = [
-    'Personal Care',
-    'Health Care', 
-    'Home Care',
-    'Hair Care',
-    'Skin Care',
-    'Wellness Products'
-  ]
+  const getProductImage = (p: Product) => {
+    const url = p?.imageUrl || p?.image_url || p?.imagePath || p?.image_path
+    if (!url) return '/images/shop-cart/img-1.png'
+    if (url.startsWith('http') || url.startsWith('/')) return url
+    return `${API_BASE_URL}/uploads/${url}`
+  }
+
+  const handleSearchSelect = (p: Product) => {
+    setShowSearchDropdown(false)
+    setShowMobileSearch(false)
+    setSearchQuery('')
+    router.push(`/product/${p.id}`)
+  }
+
+  const handleSearchSubmit = () => {
+    if (!searchQuery.trim()) return
+    setShowSearchDropdown(false)
+    setShowMobileSearch(false)
+    router.push(`/shop?search=${encodeURIComponent(searchQuery.trim())}`)
+    setSearchQuery('')
+  }
+
+  const handleCategoryClick = (category: string) => {
+    setIsDropdownOpen(false)
+    setIsMobileMenuOpen(false)
+    router.push(`/shop?category=${encodeURIComponent(category)}`)
+  }
 
   return (
     <header className="w-full">
@@ -103,23 +174,45 @@ const Header = () => {
             </div>
 
             {/* Search Bar - Hidden on mobile, shown on tablet+ */}
-            <div className="hidden md:flex flex-1 max-w-2xl mx-4 lg:mx-8">
+            <div className="hidden md:flex flex-1 max-w-2xl mx-4 lg:mx-8 relative" ref={searchRef}>
               <div className="flex w-full">
                 <input
                   type="text"
+                  value={searchQuery}
+                  onChange={e => setSearchQuery(e.target.value)}
+                  onKeyDown={e => { if (e.key === 'Enter') handleSearchSubmit(); if (e.key === 'Escape') { setShowSearchDropdown(false); setSearchQuery('') } }}
                   placeholder="Search products..."
                   className="flex-1 px-4 lg:px-6 py-2 lg:py-3 border-2 border-gray-300 border-r-0 rounded-l-lg text-sm lg:text-base font-roboto focus:outline-none focus:border-primary bg-white"
                 />
-                <button className="bg-primary text-white px-4 lg:px-5 py-2 lg:py-3 rounded-r-lg hover:bg-primary-dark transition-colors flex items-center justify-center">
+                <button onClick={handleSearchSubmit} className="bg-primary text-white px-4 lg:px-5 py-2 lg:py-3 rounded-r-lg hover:bg-primary-dark transition-colors flex items-center justify-center">
                   <Search size={20} className="lg:w-6 lg:h-6" strokeWidth={2.5} />
                 </button>
               </div>
+              {showSearchDropdown && searchResults.length > 0 && (
+                <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-xl shadow-2xl z-[200] overflow-hidden">
+                  {searchResults.map(p => (
+                    <button key={p.id} onClick={() => handleSearchSelect(p)} className="flex items-center gap-3 w-full px-4 py-3 hover:bg-gray-50 text-left border-b border-gray-100 last:border-0 transition-colors">
+                      <div className="w-10 h-10 rounded-lg overflow-hidden border border-gray-200 flex-shrink-0">
+                        <Image src={getProductImage(p)} alt={p.name} width={40} height={40} className="object-cover w-full h-full" unoptimized />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-gray-800 truncate">{p.name}</p>
+                        {p.category && <p className="text-xs text-gray-500">{p.category}</p>}
+                      </div>
+                      <span className="text-sm font-semibold text-gray-800 flex-shrink-0">₹{Number(p.price || 0).toFixed(0)}</span>
+                    </button>
+                  ))}
+                  <button onClick={handleSearchSubmit} className="w-full py-2.5 text-sm text-primary font-medium hover:bg-primary/5 transition-colors">
+                    See all results for "{searchQuery}"
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* Action Icons */}
             <div className="flex items-center space-x-3 md:space-x-4 lg:space-x-6">
               {/* Search icon for mobile only */}
-              <button className="md:hidden flex flex-col items-center text-black hover:text-primary transition-colors">
+              <button onClick={() => setShowMobileSearch(v => !v)} className="md:hidden flex flex-col items-center text-black hover:text-primary transition-colors">
                 <Search size={24} strokeWidth={1.5} />
               </button>
               
@@ -153,7 +246,7 @@ const Header = () => {
                         </a>
                         <button
                           onClick={() => {
-                            setIsLoggedIn(false)
+                            logout()
                             setIsUserDropdownOpen(false)
                           }}
                           className="w-full text-left px-4 py-3 text-gray-700 hover:bg-primary hover:text-black transition-colors font-roboto font-medium text-base"
@@ -190,16 +283,65 @@ const Header = () => {
               {/* Heart icon - navigate to wishlist */}
               <a href="/wishlist" className="flex flex-col items-center text-black hover:text-primary transition-colors relative">
                 <Heart size={24} className="lg:w-7 lg:h-7" strokeWidth={1.5} />
+                {wishlistCount > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-primary text-black text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">
+                    {wishlistCount}
+                  </span>
+                )}
               </a>
               
-              {/* Cart icon - navigate to shop */}
-              <a href="/shop" className="flex flex-col items-center text-black hover:text-primary transition-colors relative">
+              {/* Cart icon - opens cart drawer */}
+              <button onClick={() => setIsCartOpen(true)} className="flex flex-col items-center text-black hover:text-primary transition-colors relative">
                 <ShoppingCart size={24} className="lg:w-7 lg:h-7" strokeWidth={1.5} />
-              </a>
+                {cartCount > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-primary text-black text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">
+                    {cartCount}
+                  </span>
+                )}
+              </button>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Mobile Search Bar */}
+      {showMobileSearch && (
+        <div className="md:hidden bg-white border-t border-gray-200 px-4 py-3">
+          <div className="flex gap-2 relative" ref={searchRef}>
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              onKeyDown={e => { if (e.key === 'Enter') handleSearchSubmit(); if (e.key === 'Escape') setShowMobileSearch(false) }}
+              placeholder="Search products..."
+              autoFocus
+              className="flex-1 px-4 py-2.5 border-2 border-gray-300 rounded-l-lg text-sm focus:outline-none focus:border-primary bg-white"
+            />
+            <button onClick={handleSearchSubmit} className="bg-primary text-white px-4 py-2.5 rounded-r-lg hover:bg-primary-dark transition-colors">
+              <Search size={18} />
+            </button>
+            {showSearchDropdown && searchResults.length > 0 && (
+              <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-xl shadow-2xl z-[200] overflow-hidden">
+                {searchResults.map(p => (
+                  <button key={p.id} onClick={() => handleSearchSelect(p)} className="flex items-center gap-3 w-full px-4 py-3 hover:bg-gray-50 text-left border-b border-gray-100 last:border-0 transition-colors">
+                    <div className="w-10 h-10 rounded-lg overflow-hidden border border-gray-200 flex-shrink-0">
+                      <Image src={getProductImage(p)} alt={p.name} width={40} height={40} className="object-cover w-full h-full" unoptimized />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-gray-800 truncate">{p.name}</p>
+                      {p.category && <p className="text-xs text-gray-500">{p.category}</p>}
+                    </div>
+                    <span className="text-sm font-semibold text-gray-800 flex-shrink-0">₹{Number(p.price || 0).toFixed(0)}</span>
+                  </button>
+                ))}
+                <button onClick={handleSearchSubmit} className="w-full py-2.5 text-sm text-primary font-medium hover:bg-primary/5 transition-colors">
+                  See all results for "{searchQuery}"
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Navigation Bar - Desktop */}
       <div className="hidden lg:block bg-gray-50 border-t border-gray-200">
@@ -218,15 +360,16 @@ const Header = () => {
               {/* Dropdown Menu */}
               {isDropdownOpen && (
                 <div className="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-xl z-50 min-w-[200px]">
-                  {categories.map((category, index) => (
-                    <a
+                  {categories.length === 0 ? (
+                    <div className="px-4 py-3 text-sm text-gray-400">No categories found</div>
+                  ) : categories.map((category, index) => (
+                    <button
                       key={index}
-                      href="#"
-                      className="block px-4 py-3 text-gray-700 hover:bg-primary hover:text-black transition-colors border-b border-gray-100 last:border-b-0 font-roboto font-medium text-lg leading-none tracking-normal"
-                      onClick={() => setIsDropdownOpen(false)}
+                      onClick={() => handleCategoryClick(category)}
+                      className="block w-full text-left px-4 py-3 text-gray-700 hover:bg-primary hover:text-black transition-colors border-b border-gray-100 last:border-b-0 font-roboto font-medium text-lg leading-none tracking-normal"
                     >
                       {category}
-                    </a>
+                    </button>
                   ))}
                 </div>
               )}
@@ -308,15 +451,17 @@ const Header = () => {
               <h3 className="font-roboto font-semibold text-lg mb-3 text-gray-700">Categories</h3>
               <div className="space-y-2">
                 {categories.map((category, index) => (
-                  <a
+                  <button
                     key={index}
-                    href="#"
-                    className="block px-4 py-3 text-gray-700 hover:bg-primary hover:text-black transition-colors rounded-lg font-roboto font-medium text-base"
-                    onClick={() => setIsMobileMenuOpen(false)}
+                    onClick={() => handleCategoryClick(category)}
+                    className="block w-full text-left px-4 py-3 text-gray-700 hover:bg-primary hover:text-black transition-colors rounded-lg font-roboto font-medium text-base"
                   >
                     {category}
-                  </a>
+                  </button>
                 ))}
+                {categories.length === 0 && (
+                  <p className="text-sm text-gray-400 px-4">No categories yet</p>
+                )}
               </div>
             </div>
 
@@ -401,6 +546,99 @@ const Header = () => {
         isOpen={isAuthModalOpen}
         onClose={() => setIsAuthModalOpen(false)}
       />
+
+      {/* Cart Drawer */}
+      {isCartOpen && (
+        <div className="fixed inset-0 z-50 flex justify-end">
+          {/* Backdrop */}
+          <div className="absolute inset-0 bg-black bg-opacity-40" onClick={() => setIsCartOpen(false)} />
+          {/* Drawer */}
+          <div className="relative w-full max-w-md bg-white h-full flex flex-col shadow-2xl animate-slide-in-right">
+            {/* Header */}
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+              <h2 className="text-xl font-bold text-gray-900">Your Cart ({cartCount})</h2>
+              <button onClick={() => setIsCartOpen(false)} className="text-gray-500 hover:text-gray-800">
+                <X size={24} />
+              </button>
+            </div>
+
+            {/* Items */}
+            <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
+              {cartItems.length === 0 ? (
+                <div className="flex flex-col items-center justify-center h-full text-gray-400 space-y-3">
+                  <ShoppingCart size={56} strokeWidth={1} />
+                  <p className="text-lg font-medium">Your cart is empty</p>
+                  <button onClick={() => { setIsCartOpen(false); router.push('/shop') }} className="px-6 py-2 bg-primary text-black rounded-lg font-semibold hover:bg-primary-dark transition-colors">
+                    Browse Shop
+                  </button>
+                </div>
+              ) : (
+                cartItems.map(item => (
+                  <div key={item.id} className="flex items-start space-x-4 border-b border-gray-100 pb-4">
+                    {/* Image */}
+                    <div className="w-20 h-20 bg-gray-50 rounded-lg overflow-hidden flex-shrink-0 relative border border-gray-200">
+                      {item.imageUrl ? (
+                        <Image src={item.imageUrl} alt={item.name} fill className="object-cover" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-gray-300 text-2xl">🛒</div>
+                      )}
+                    </div>
+                    {/* Details */}
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold text-gray-800 truncate">{item.name}</p>
+                      <p className="text-sm font-bold text-gray-900 mt-1">₹{(item.price * item.quantity).toFixed(0)}</p>
+                      <p className="text-xs text-gray-500">₹{item.price}/ea</p>
+                      {/* Qty controls */}
+                      <div className="flex items-center space-x-2 mt-2">
+                        <button onClick={() => updateQty(item.id, item.quantity - 1, item.variant_label)} className="w-7 h-7 border border-gray-300 rounded flex items-center justify-center hover:bg-gray-100">
+                          <Minus size={12} />
+                        </button>
+                        <span className="text-sm font-semibold w-6 text-center">{item.quantity}</span>
+                        <button
+                          onClick={() => updateQty(item.id, item.quantity + 1, item.variant_label)}
+                          disabled={item.maxStock != null && item.maxStock > 0 && item.quantity >= item.maxStock}
+                          className="w-7 h-7 border border-gray-300 rounded flex items-center justify-center hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed"
+                        >
+                          <Plus size={12} />
+                        </button>
+                      </div>
+                      {item.maxStock != null && item.maxStock > 0 && item.quantity >= item.maxStock && (
+                        <p className="text-xs text-orange-500 mt-0.5">Max stock reached</p>
+                      )}
+                    </div>
+                    {/* Remove */}
+                    <button onClick={() => removeItem(item.id, item.variant_label)} className="text-gray-400 hover:text-red-500 transition-colors mt-1">
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
+                ))
+              )}
+            </div>
+
+            {/* Footer */}
+            {cartItems.length > 0 && (
+              <div className="border-t border-gray-200 px-6 py-4 space-y-3">
+                <div className="flex justify-between text-lg font-bold text-gray-900">
+                  <span>Total</span>
+                  <span>₹{cartTotal.toFixed(0)}</span>
+                </div>
+                <button
+                  onClick={() => { setIsCartOpen(false); router.push('/checkout') }}
+                  className="w-full py-3 bg-[#003F62] text-white font-bold rounded-xl hover:bg-[#002a42] transition-colors text-base"
+                >
+                  Proceed to Checkout
+                </button>
+                <button
+                  onClick={() => { setIsCartOpen(false); router.push('/shop') }}
+                  className="w-full py-3 border-2 border-gray-300 text-gray-700 font-semibold rounded-xl hover:bg-gray-50 transition-colors text-sm"
+                >
+                  Continue Shopping
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </header>
   )
 }
