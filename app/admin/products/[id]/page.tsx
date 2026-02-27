@@ -12,9 +12,14 @@ import toast from 'react-hot-toast'
 import { toastConfirm } from '@/lib/toastConfirm'
 
 function getImage(product: any) {
-  const url = product?.imageUrl || product?.image_url || product?.imagePath || product?.image_path
+  let url = product?.imageUrl || product?.image_url || product?.imagePath || product?.image_path
   if (!url) return ''
-  if (url.startsWith('http') || url.startsWith('/')) return url
+  if (url.startsWith('http') || url.startsWith('/')) {
+    if (url.includes('localhost')) {
+      return url.replace(/https?:\/\/localhost(:\d+)?/, API_BASE_URL)
+    }
+    return url
+  }
   return `${API_BASE_URL}/uploads/${url}`
 }
 

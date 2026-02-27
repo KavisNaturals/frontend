@@ -10,9 +10,14 @@ import { useAuth } from '@/context/AuthContext'
 import { useRouter } from 'next/navigation'
 
 function getImage(product: Product) {
-  const url = product.imageUrl || product.image_url || product.imagePath || product.image_path
+  let url = product.imageUrl || product.image_url || product.imagePath || product.image_path
   if (!url) return '/images/admin/product-image.png'
-  if (url.startsWith('http') || url.startsWith('/')) return url
+  if (url.startsWith('http') || url.startsWith('/')) {
+    if (url.includes('localhost')) {
+      return url.replace(/https?:\/\/localhost(:\d+)?/, API_BASE_URL)
+    }
+    return url
+  }
   return `${API_BASE_URL}/uploads/${url}`
 }
 

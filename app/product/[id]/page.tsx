@@ -13,9 +13,15 @@ import { useWishlist } from "@/context/WishlistContext";
 import { useAuth } from "@/context/AuthContext";
 
 function getImage(p: any) {
-  const url = p?.imageUrl || p?.image_url || p?.imagePath || p?.image_path;
+  let url = p?.imageUrl || p?.image_url || p?.imagePath || p?.image_path;
   if (!url) return '/images/shop-cart/img-1.png';
-  if (url.startsWith('http') || url.startsWith('/')) return url;
+  if (url.startsWith('http') || url.startsWith('/')) {
+    // rewrite localhost references to current API_BASE_URL in prod
+    if (url.includes('localhost')) {
+      return url.replace(/https?:\/\/localhost(:\d+)?/, API_BASE_URL);
+    }
+    return url;
+  }
   return `${API_BASE_URL}/uploads/${url}`;
 }
 

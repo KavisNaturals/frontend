@@ -11,9 +11,14 @@ import { useCart } from '@/context/CartContext'
 import { API_BASE_URL } from '@/lib/api'
 
 function getImage(p: any) {
-  const url = p.imageUrl || p.image_url || p.imagePath || p.image_path
-  if (!url) return '/images/placeholder.svg'
-  if (url.startsWith('http') || url.startsWith('/')) return url
+  let url = p?.imageUrl || p?.image_url || p?.imagePath || p?.image_path;
+  if (!url) return '/images/placeholder.svg';
+  if (url.startsWith('http') || url.startsWith('/')) {
+    if (url.includes('localhost')) {
+      return url.replace(/https?:\/\/localhost(:\d+)?/, API_BASE_URL);
+    }
+    return url;
+  }
   return `${API_BASE_URL}/uploads/${url}`
 }
 
