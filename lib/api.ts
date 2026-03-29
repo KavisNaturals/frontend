@@ -251,18 +251,24 @@ export interface Review {
   comment: string;
   user_name: string;
   place?: string;
+  reviewer_image?: string;
+  product_id?: string;
   createdAt: string;
-  Product?: { name: string; image_path?: string };
+  Product?: { id: string; name: string; image_path?: string };
 }
 
 export const reviewsApi = {
   getForProduct: (productId: string) =>
     api.get<Review[]>(`/api/products/${productId}/reviews`),
-  addReview: (productId: string, data: { rating: number; comment: string; user_name: string; place?: string }) =>
+  addReview: (productId: string, data: { rating: number; comment: string; user_name: string; place?: string; reviewer_image?: string }) =>
     api.post<Review>(`/api/products/${productId}/reviews`, data),
   getFeatured: (limit?: number) =>
     api.get<Review[]>(`/api/reviews/featured${limit ? `?limit=${limit}` : ''}`),
   getAllAdmin: () => api.get<Review[]>('/api/reviews'),
+  adminCreate: (data: { product_id: string; rating: number; comment: string; user_name: string; place?: string; reviewer_image?: string }) =>
+    api.post<Review>('/api/reviews', data),
+  adminUpdate: (id: string, data: Partial<{ rating: number; comment: string; user_name: string; place: string; reviewer_image: string }>) =>
+    api.put<Review>(`/api/reviews/${id}`, data),
   deleteReview: (id: string) => api.del<{ message: string }>(`/api/reviews/${id}`),
 };
 
@@ -456,9 +462,16 @@ export interface SocialLinks {
   youtube?: string;
 }
 
+export interface ShippingSettings {
+  cost: number;
+  free_threshold: number;
+}
+
 export const settingsApi = {
   getSocialLinks: () => api.get<{ key: string; value: SocialLinks }>('/api/settings/social_links'),
   updateSocialLinks: (value: SocialLinks) => api.put<{ key: string; value: SocialLinks }>('/api/settings/social_links', { value }),
+  getShipping: () => api.get<{ key: string; value: ShippingSettings }>('/api/settings/shipping'),
+  updateShipping: (value: ShippingSettings) => api.put<{ key: string; value: ShippingSettings }>('/api/settings/shipping', { value }),
   getAll: () => api.get<Record<string, unknown>>('/api/settings'),
 };
 

@@ -4,8 +4,8 @@ import React, { useEffect, useState } from 'react'
 import AdminLayout from '@/components/admin/AdminLayout'
 import { useAuth } from '@/context/AuthContext'
 import { useRouter } from 'next/navigation'
-import { usersApi, settingsApi, type UserProfile, type SocialLinks } from '@/lib/api'
-import { UserCircle, Edit2, Save, X, Lock, Mail, User, Eye, EyeOff, Facebook, Instagram, Twitter, Youtube, Link as LinkIcon } from 'lucide-react'
+import { usersApi, settingsApi, type UserProfile, type SocialLinks, type ShippingSettings } from '@/lib/api'
+import { UserCircle, Edit2, Save, X, Lock, Mail, User, Eye, EyeOff, Facebook, Instagram, Twitter, Youtube, Link as LinkIcon, Package } from 'lucide-react'
 
 const AdminProfilePage = () => {
   const router = useRouter()
@@ -29,6 +29,12 @@ const AdminProfilePage = () => {
   const [socialForm, setSocialForm] = useState<SocialLinks>({ facebook: '', instagram: '', twitter: '', youtube: '' })
   const [savingSocial, setSavingSocial] = useState(false)
 
+  // Shipping settings
+  const [shipping, setShipping] = useState<ShippingSettings>({ cost: 60, free_threshold: 600 })
+  const [editingShipping, setEditingShipping] = useState(false)
+  const [shippingForm, setShippingForm] = useState<ShippingSettings>({ cost: 60, free_threshold: 600 })
+  const [savingShipping, setSavingShipping] = useState(false)
+
   useEffect(() => {
     if (!isLoggedIn || !isAdmin) { router.push('/admin/login'); return }
     usersApi.getProfile()
@@ -37,6 +43,9 @@ const AdminProfilePage = () => {
       .finally(() => setLoading(false))
     settingsApi.getSocialLinks()
       .then(res => { setSocialLinks(res.value || {}); setSocialForm(res.value || {}) })
+      .catch(() => {})
+    settingsApi.getShipping()
+      .then(res => { if (res.value) { setShipping(res.value); setShippingForm(res.value) } })
       .catch(() => {})
   }, [isLoggedIn, isAdmin, router])
 
@@ -81,6 +90,18 @@ const AdminProfilePage = () => {
       setSaveMsg('Social links updated!')
       setTimeout(() => setSaveMsg(''), 3000)
     } catch { setSaveMsg('Failed to update social links.') } finally { setSavingSocial(false) }
+  }
+
+  const handleSaveShipping = async () => {
+    setSavingShipping(true)
+    try {
+      const res = await settingsApi.updateShipping(shippingForm)
+      setShipping(res.value)
+      setShippingForm(res.value)
+      setEditingShipping(false)
+      setSaveMsg('Shipping settings updated!')
+      setTimeout(() => setSaveMsg(''), 3000)
+    } catch { setSaveMsg('Failed to update shipping settings.') } finally { setSavingShipping(false) }
   }
 
   if (loading) return (
@@ -315,6 +336,63 @@ const AdminProfilePage = () => {
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+        {/* Shipping Settings Card */}
+        <div className="bg-white rounded-xl border border-gray-200 p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+              <Package size={18} /> Shipping Settings
+            </h2>
+            {!editingShipping ? (
+              <button
+                onClick={() => { setEditingShipping(true); setShippingForm(shipping) }}
+                className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-[#003F62] border border-[#003F62] rounded-lg hover:bg-[#003F62] hover:text-white transition-colors"
+              >
+                <Edit2 size={14} /> Edit
+              </button>
+            ) : (
+              <div className="flex gap-2">
+                <button onClick={() => { setEditingShipping(false); setShippingForm(shipping) }} className="flex items-center gap-1.5 px-3 py-2 text-sm text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50">
+                  <X size={14} /> Cancel
+                </button>
+                <button onClick={handleSaveShipping} disabled={savingShipping} className="flex items-center gap-1.5 px-4 py-2 text-sm font-semibold bg-[#003F62] text-white rounded-lg hover:bg-[#003F62]/90 disabled:opacity-60">
+                  <Save size={14} /> {savingShipping ? 'Saving...' : 'Save'}
+                </button>
+              </div>
+            )}
+          </div>
+
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-1.5">Shipping Cost (₹)</label>
+              {editingShipping ? (
+                <input
+                  type="number"
+                  min={0}
+                  value={shippingForm.cost}
+                  onChange={e => setShippingForm(p => ({ ...p, cost: Number(e.target.value) }))}
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-[#003F62] text-sm bg-white"
+                />
+              ) : (
+                <div className="px-4 py-2.5 bg-gray-50 rounded-lg text-sm text-gray-800">₹{shipping.cost}</div>
+              )}
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-1.5">Free Shipping Threshold (₹)</label>
+              <p className="text-xs text-gray-400 mb-1.5">Orders above this amount get free shipping</p>
+              {editingShipping ? (
+                <input
+                  type="number"
+                  min={0}
+                  value={shippingForm.free_threshold}
+                  onChange={e => setShippingForm(p => ({ ...p, free_threshold: Number(e.target.value) }))}
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-[#003F62] text-sm bg-white"
+                />
+              ) : (
+                <div className="px-4 py-2.5 bg-gray-50 rounded-lg text-sm text-gray-800">₹{shipping.free_threshold}</div>
+              )}
+            </div>
           </div>
         </div>
       </div>

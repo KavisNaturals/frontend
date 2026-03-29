@@ -8,7 +8,7 @@ import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import { useCart } from '@/context/CartContext'
 import { useAuth } from '@/context/AuthContext'
-import { paymentApi, ordersApi, usersApi, type Address } from '@/lib/api'
+import { paymentApi, ordersApi, usersApi, settingsApi, type Address } from '@/lib/api'
 import { ShoppingBag, ChevronDown, CreditCard, Truck } from 'lucide-react'
 
 declare global {
@@ -38,12 +38,26 @@ export default function CheckoutPage() {
   const [paying, setPaying] = useState(false)
   const [error, setError] = useState('')
   const [paymentMethod, setPaymentMethod] = useState<'cod' | 'razorpay'>('cod')
+  const [shippingCost, setShippingCost] = useState(60)
+  const [freeShippingThreshold, setFreeShippingThreshold] = useState(600)
 
   const [form, setForm] = useState({
     name: '', email: '', phone: '',
     address_line1: '', address_line2: '',
     city: '', state: '', pincode: '',
   })
+
+  // Load shipping settings
+  useEffect(() => {
+    settingsApi.getShipping()
+      .then(res => {
+        if (res.value) {
+          setShippingCost(res.value.cost ?? 60)
+          setFreeShippingThreshold(res.value.free_threshold ?? 600)
+        }
+      })
+      .catch(() => {})
+  }, [])
 
   // Load saved addresses for logged-in users
   useEffect(() => {
@@ -69,7 +83,7 @@ export default function CheckoutPage() {
     })
   }
 
-  const shipping = total >= 600 ? 0 : 60
+  const shipping = total >= freeShippingThreshold ? 0 : shippingCost
   const grandTotal = total + shipping
 
   const shippingAddress = {
@@ -374,7 +388,7 @@ export default function CheckoutPage() {
                     </span>
                   </div>
                   {shipping > 0 && (
-                    <p className="text-xs text-gray-400">Add ₹{(600 - total).toFixed(0)} more for free shipping</p>
+                    <p className="text-xs text-gray-400">Add ₹{(freeShippingThreshold - total).toFixed(0)} more for free shipping</p>
                   )}
                   <div className="flex justify-between text-base font-bold text-gray-900 pt-2 border-t border-gray-100">
                     <span>Total</span>

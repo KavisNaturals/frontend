@@ -32,6 +32,7 @@ export default function ProductDetailPage() {
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
   const [fbtProducts, setFbtProducts] = useState<Product[]>([]);
   const [reviews, setReviews] = useState<Review[]>([]);
+  const [featuredReviews, setFeaturedReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
   const [selectedVariant, setSelectedVariant] = useState<{ label: string; price: number } | null>(null);
@@ -57,10 +58,12 @@ export default function ProductDetailPage() {
       productsApi.getById(productId),
       reviewsApi.getForProduct(productId),
       productsApi.getAll(),
-    ]).then(([prod, revs, allProds]) => {
+      reviewsApi.getFeatured(6),
+    ]).then(([prod, revs, allProds, featured]) => {
       setProduct(prod);
       setMainImage(getImage(prod));
       setReviews(Array.isArray(revs) ? revs : []);
+      setFeaturedReviews(Array.isArray(featured) ? featured : []);
       const allProdsList = Array.isArray(allProds) ? allProds : [];
       const fbtIds: string[] = Array.isArray((prod as any).frequently_bought_together)
         ? (prod as any).frequently_bought_together
@@ -314,15 +317,15 @@ export default function ProductDetailPage() {
       </section>
 
       {/* Frequently Bought Together */}
-      {fbtProducts.length > 0 && (
+      {fbtProducts.length > 0 && product && (
         <section className="py-10 bg-white">
-          <div className="max-w-5xl mx-auto px-4">
+          <div className="max-w-7xl mx-auto px-4">
             <div className="border-2 border-primary rounded-2xl p-6">
               <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">Frequently Bought Together</h2>
               <div className="flex flex-col lg:flex-row items-center justify-between gap-6">
-                {/* Products row */}
+                {/* Products row — current product FIRST */}
                 <div className="flex flex-wrap items-end justify-center gap-4">
-                  {fbtProducts.map((p, i) => (
+                  {[product as any, ...fbtProducts].map((p, i) => (
                     <React.Fragment key={p.id}>
                       {i > 0 && (
                         <span className="text-3xl font-bold text-gray-500 pb-8">+</span>
@@ -331,7 +334,7 @@ export default function ProductDetailPage() {
                         <div className="bg-gray-50 rounded-2xl p-3 mb-2 w-full aspect-square flex items-center justify-center overflow-hidden group-hover:shadow-md transition-shadow">
                           <Image src={getImage(p)} alt={p.name} width={140} height={140} className="object-contain w-full h-full" unoptimized />
                         </div>
-                        <p className="text-xs font-semibold text-gray-700 leading-tight mb-1 line-clamp-2">{p.name}</p>
+                        <p className="text-xs font-semibold text-gray-700 leading-tight mb-1 line-clamp-2">{p.name}{p.size ? ` ( ${p.size} )` : ''}</p>
                         <p className="text-sm font-bold text-gray-900">₹{Number((p as any).sale_price || p.price || 0).toFixed(0)}</p>
                       </Link>
                     </React.Fragment>
@@ -342,11 +345,11 @@ export default function ProductDetailPage() {
                   <p className="text-base font-semibold text-gray-700">Total Price :</p>
                   <div className="flex items-center gap-2">
                     <span className="text-2xl font-bold text-gray-900">
-                      ₹{fbtProducts.reduce((sum, p) => sum + Number((p as any).sale_price || p.price || 0), 0).toFixed(0)}
+                      ₹{[product as any, ...fbtProducts].reduce((sum, p) => sum + Number((p as any).sale_price || p.price || 0), 0).toFixed(0)}
                     </span>
-                    {fbtProducts.some(p => Number((p as any).original_price) > Number((p as any).sale_price || p.price || 0)) && (
+                    {[product as any, ...fbtProducts].some(p => Number((p as any).original_price) > Number((p as any).sale_price || p.price || 0)) && (
                       <span className="text-base text-gray-400 line-through">
-                        ₹{fbtProducts.reduce((sum, p) => sum + Number((p as any).original_price || (p as any).sale_price || p.price || 0), 0).toFixed(0)}
+                        ₹{[product as any, ...fbtProducts].reduce((sum, p) => sum + Number((p as any).original_price || (p as any).sale_price || p.price || 0), 0).toFixed(0)}
                       </span>
                     )}
                   </div>
@@ -458,29 +461,41 @@ export default function ProductDetailPage() {
               </button>
             </div>
           </div>
-
-          {reviews.length > 0 && (
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">Happy Clients Saying</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {reviews.slice(0, 6).map((rev, i) => (
-                  <div key={i} className="bg-white rounded-2xl p-6 shadow-sm">
-                    <div className="flex items-center gap-3 mb-3">
-                      <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-black font-bold text-sm flex-shrink-0">
-                        {(rev.user_name || 'C')[0].toUpperCase()}
+</div>
+</section>
+          {/* Always show Happy Clients Saying — product reviews first, fallback to featured */}
+         <section className="py-12 bg-white">
+        <div className="max-w-7xl mx-auto px-4">
+          {(() => {
+            const displayReviews = reviews.length > 0 ? reviews : featuredReviews;
+            if (displayReviews.length === 0) return null;
+            return (
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">Happy Clients Saying</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {displayReviews.slice(0, 6).map((rev, i) => (
+                    <div key={i} className="bg-white rounded-2xl p-6 shadow-sm">
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0 overflow-hidden border-2 border-primary/30">
+                          {(rev as any).reviewer_image ? (
+                            <img src={(rev as any).reviewer_image} alt={rev.user_name} className="w-full h-full object-cover" />
+                          ) : (
+                            <span className="text-primary font-bold text-lg">{(rev.user_name || 'C')[0].toUpperCase()}</span>
+                          )}
+                        </div>
+                        <div>
+                          <p className="font-semibold text-gray-800 text-sm">{rev.user_name || 'Customer'}</p>
+                          {rev.place && <p className="text-xs text-gray-500">{rev.place}</p>}
+                        </div>
                       </div>
-                      <div>
-                        <p className="font-semibold text-gray-800 text-sm">{rev.user_name || 'Customer'}</p>
-                        {rev.place && <p className="text-xs text-gray-500">{rev.place}</p>}
-                      </div>
+                      {renderStars(Number(rev.rating), 16)}
+                      <p className="text-gray-700 text-sm mt-3">{rev.comment}</p>
                     </div>
-                    {renderStars(Number(rev.rating), 16)}
-                    <p className="text-gray-700 text-sm mt-3">{rev.comment}</p>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
-            </div>
-          )}
+            );
+          })()}
         </div>
       </section>
 

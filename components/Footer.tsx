@@ -129,12 +129,12 @@ const Footer = () => {
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <p className="text-sm order-last md:order-first">
-              &copy; 2025 Kavi&apos;s Naturals All Rights Reserved
+              &copy; 2026 Kavi&apos;s Naturals All Rights Reserved | Made By Dribblu Tech Solutions
             </p>
             <div className="flex flex-col sm:flex-row items-center gap-3">
               <div className="flex items-center gap-2">
                 <span className="text-xs font-medium whitespace-nowrap">100% SECURE PAYMENTS POWERED BY</span>
-                <Image src="/images/razorpay.png" alt="Razorpay" width={80} height={22} className="object-contain" />
+                <Image src="/images/razorpay.png" alt="Razorpay" width={80} height={22} className="object-contain" style={{ height: 'auto' }} />
               </div>
               <div className="flex items-center gap-1.5">
                 <div className="w-8 h-8 rounded overflow-hidden flex items-center justify-center">
