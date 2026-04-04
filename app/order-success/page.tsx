@@ -16,10 +16,34 @@ function OrderSuccessContent() {
 
   useEffect(() => {
     if (!orderId) { setLoading(false); return }
-    ordersApi.getById(orderId)
-      .then(setOrder)
-      .catch(() => {})
-      .finally(() => setLoading(false))
+
+    let cancelled = false
+    let retryTimer: ReturnType<typeof setTimeout> | null = null
+
+    const fetchOrder = async (attempt = 0) => {
+      try {
+        const data = await ordersApi.getById(orderId)
+        if (cancelled) return
+
+        setOrder(data)
+        setLoading(false)
+
+        if (data?.payment_status === 'pending' && attempt < 6) {
+          retryTimer = setTimeout(() => fetchOrder(attempt + 1), 4000)
+        }
+      } catch {
+        if (!cancelled) {
+          setLoading(false)
+        }
+      }
+    }
+
+    fetchOrder()
+
+    return () => {
+      cancelled = true
+      if (retryTimer) clearTimeout(retryTimer)
+    }
   }, [orderId])
 
   return (
@@ -29,7 +53,7 @@ function OrderSuccessContent() {
         <h1 className="text-3xl font-bold text-gray-900 mb-2">Order Placed!</h1>
         <p className="text-gray-500 mb-6">
           {order?.payment_status === 'pending'
-            ? "Your order is confirmed. Please keep cash ready when your order is delivered."
+            ? "Your payment is being confirmed. Your order has been received and will update shortly."
             : "Thank you for shopping with KaVi's Naturals. Your payment was successful and your order is confirmed."
           }
         </p>
@@ -51,7 +75,13 @@ function OrderSuccessContent() {
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-gray-600 font-medium">Payment Status</span>
-              <span className="capitalize px-2 py-0.5 rounded-full text-xs font-semibold bg-green-100 text-green-700">
+              <span className={`capitalize px-2 py-0.5 rounded-full text-xs font-semibold ${
+                order.payment_status === 'paid'
+                  ? 'bg-green-100 text-green-700'
+                  : order.payment_status === 'failed'
+                  ? 'bg-red-100 text-red-700'
+                  : 'bg-yellow-100 text-yellow-700'
+             }`}>
                 {order.payment_status}
               </span>
             </div>

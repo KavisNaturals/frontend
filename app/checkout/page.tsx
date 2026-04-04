@@ -40,7 +40,7 @@ const STATES = ['Andhra Pradesh','Arunachal Pradesh','Assam','Bihar','Chhattisga
 export default function CheckoutPage() {
   const router = useRouter()
   const { items, clearCart } = useCart()
-  const { isLoggedIn } = useAuth()
+  const { isLoggedIn, authLoading } = useAuth()
 
   const [savedAddresses, setSavedAddresses] = useState<Address[]>([])
   const [directItems, setDirectItems] = useState<CheckoutItem[]>([])
@@ -134,6 +134,12 @@ export default function CheckoutPage() {
   const handlePay = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
+
+    if (authLoading) return
+    if (!isLoggedIn) {
+      setError('Please log in to place your order.')
+      return
+    }
     if (checkoutItems.length === 0) { setError('Your checkout is empty.'); return }
     setPaying(true)
 
@@ -144,6 +150,14 @@ export default function CheckoutPage() {
     try {
       // Step 1: Create Razorpay order on backend
       const rzpOrder = await paymentApi.createOrder(grandTotal)
+
+      // Step 1b: Save a pending order before opening payment, so paid orders are never lost
+      const pendingOrder = await ordersApi.create({
+        items: checkoutItems.map(i => ({ product_id: i.id, quantity: i.quantity, price: i.price, variant_label: i.variant_label })),
+        total_amount: grandTotal,
+        shipping_address: shippingAddress,
+        razorpay_order_id: rzpOrder.id,
+      } as any)
 
       // Step 2: Open Razorpay checkout
       const options = {
@@ -185,12 +199,19 @@ export default function CheckoutPage() {
             }
             router.push(`/order-success?id=${order.id}`)
           } catch (err: any) {
-            setError(err?.message || 'Order could not be saved after payment. Contact support with payment ID: ' + response.razorpay_payment_id)
-            setPaying(false)
+            if (isDirectCheckout && typeof window !== 'undefined') {
+              sessionStorage.removeItem('kn_direct_checkout')
+            } else {
+              clearCart()
+            }
+            router.push(`/order-success?id=${pendingOrder.id}`)
           }
         },
         prefill: { name: form.name, email: form.email, contact: form.phone },
-        notes: { address: `${form.address_line1}, ${form.city}, ${form.state} ${form.pincode}` },
+        notes: {
+          address: `${form.address_line1}, ${form.city}, ${form.state} ${form.pincode}`,
+          internal_order_id: pendingOrder.id,
+        },
         theme: { color: '#92D050' },
         modal: { ondismiss: () => setPaying(false) },
       }
@@ -241,10 +262,15 @@ export default function CheckoutPage() {
         <h1 className="text-3xl font-bold text-gray-900 mb-8">Checkout</h1>
 
         {/* Login prompt if not logged in */}
-        {!isLoggedIn && (
-          <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 mb-6 flex items-center justify-between">
-            <p className="text-yellow-800 text-sm font-medium">Log in to use saved addresses and track orders easily.</p>
-            <Link href="/" className="text-yellow-900 underline text-sm font-semibold">Login / Sign Up</Link>
+        {!isLoggedIn && !authLoading && (
+          <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div>
+              <p className="text-red-700 text-sm font-semibold">Login is required to place an order.</p>
+              <p className="text-red-600 text-xs mt-1">Please log in or sign up before continuing to payment.</p>
+            </div>
+            <Link href="/" className="inline-flex items-center justify-center px-4 py-2 bg-primary text-black font-semibold rounded-lg hover:bg-primary/80 transition-colors">
+              Login / Sign Up
+            </Link>
           </div>
         )}
 
@@ -405,7 +431,7 @@ export default function CheckoutPage() {
 
                 <button
                   type="submit"
-                  disabled={paying}
+                  disabled={paying || !isLoggedIn || authLoading}
                   className="w-full mt-5 py-4 bg-[#003F62] text-white font-bold rounded-xl hover:bg-[#002a42] transition-colors disabled:opacity-60 disabled:cursor-not-allowed text-base"
                 >
                   {paying ? (
@@ -416,6 +442,8 @@ export default function CheckoutPage() {
                       </svg>
                       <span>Placing Order...</span>
                     </span>
+                  ) : !isLoggedIn ? (
+                    'Login to Place Order'
                   ) : (
                     `Pay ₹${grandTotal.toFixed(0)} with Razorpay`
                   )}
